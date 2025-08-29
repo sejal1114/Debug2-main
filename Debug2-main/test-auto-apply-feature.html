@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Apply Feature Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .code-block {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border-left: 4px solid #007acc;
+        }
+        .button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #005a9e;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Auto Apply Feature Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Case 1: Code with Bug</h2>
+        <p>This code has a syntax error - missing semicolon:</p>
+        <div class="code-block">function test() {
+  console.log("Hello world")  // Missing semicolon
+  return true
+}</div>
+        
+        <button class="button" onclick="testAutoApply()">Test Auto Apply</button>
+        <div id="result1"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Case 2: Correct Code</h2>
+        <p>This code is correct and should not show auto apply button:</p>
+        <div class="code-block">function test() {
+  console.log("Hello world");
+  return true;
+}</div>
+        
+        <button class="button" onclick="testCorrectCode()">Test Correct Code</button>
+        <div id="result2"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Auto Apply Logic Test</h2>
+        <button class="button" onclick="testLogic()">Test Logic</button>
+        <div id="logic-result"></div>
+    </div>
+
+    <script>
+        function testAutoApply() {
+            const aiResponse = {
+                explanation: "The code has a syntax error - missing semicolon on line 2.",
+                bugs_detected: true,
+                issues: ["Missing semicolon on line 2"],
+                suggested_fix: "function test() {\n  console.log(\"Hello world\");\n  return true;\n}",
+                line_by_line: {
+                    "1": "Function definition",
+                    "2": "Console log statement - missing semicolon",
+                    "3": "Return statement"
+                }
+            };
+            
+            const bugs_detected = aiResponse.bugs_detected;
+            const issues = aiResponse.issues;
+            const suggested_fix = aiResponse.suggested_fix;
+            const onApplyFix = true; // Mock function
+            
+            const shouldShowAutoApply = (bugs_detected || (issues && issues.length > 0)) && suggested_fix && onApplyFix;
+            
+            const result = document.getElementById('result1');
+            result.innerHTML = `
+                <p><strong>Test Results:</strong></p>
+                <p>bugs_detected: ${bugs_detected}</p>
+                <p>issues length: ${issues?.length}</p>
+                <p>suggested_fix exists: ${!!suggested_fix}</p>
+                <p>onApplyFix exists: ${!!onApplyFix}</p>
+                <p class="${shouldShowAutoApply ? 'success' : 'error'}">Should show auto apply button: ${shouldShowAutoApply}</p>
+                <p><strong>Expected:</strong> Auto apply button should be visible ✅</p>
+            `;
+        }
+
+        function testCorrectCode() {
+            const aiResponse = {
+                explanation: "This code is correct and has no issues.",
+                bugs_detected: false,
+                issues: [],
+                suggested_fix: "",
+                line_by_line: {
+                    "1": "Function definition",
+                    "2": "Console log statement with semicolon",
+                    "3": "Return statement with semicolon"
+                }
+            };
+            
+            const bugs_detected = aiResponse.bugs_detected;
+            const issues = aiResponse.issues;
+            const suggested_fix = aiResponse.suggested_fix;
+            const onApplyFix = true; // Mock function
+            
+            const shouldShowAutoApply = (bugs_detected || (issues && issues.length > 0)) && suggested_fix && onApplyFix;
+            
+            const result = document.getElementById('result2');
+            result.innerHTML = `
+                <p><strong>Test Results:</strong></p>
+                <p>bugs_detected: ${bugs_detected}</p>
+                <p>issues length: ${issues?.length}</p>
+                <p>suggested_fix exists: ${!!suggested_fix}</p>
+                <p>onApplyFix exists: ${!!onApplyFix}</p>
+                <p class="${shouldShowAutoApply ? 'error' : 'success'}">Should show auto apply button: ${shouldShowAutoApply}</p>
+                <p><strong>Expected:</strong> Auto apply button should NOT be visible ✅</p>
+            `;
+        }
+
+        function testLogic() {
+            const testCases = [
+                {
+                    name: "Bug detected with fix",
+                    bugs_detected: true,
+                    issues: ["bug"],
+                    suggested_fix: "fixed code",
+                    onApplyFix: true,
+                    expected: true
+                },
+                {
+                    name: "Bug detected without fix",
+                    bugs_detected: true,
+                    issues: ["bug"],
+                    suggested_fix: "",
+                    onApplyFix: true,
+                    expected: false
+                },
+                {
+                    name: "No bugs, no issues",
+                    bugs_detected: false,
+                    issues: [],
+                    suggested_fix: "code",
+                    onApplyFix: true,
+                    expected: false
+                },
+                {
+                    name: "Issues without bugs_detected",
+                    bugs_detected: false,
+                    issues: ["issue"],
+                    suggested_fix: "fixed code",
+                    onApplyFix: true,
+                    expected: true
+                }
+            ];
+
+            let results = '<h3>Logic Test Results:</h3>';
+            
+            testCases.forEach(testCase => {
+                const shouldShow = (testCase.bugs_detected || (testCase.issues && testCase.issues.length > 0)) && testCase.suggested_fix && testCase.onApplyFix;
+                const passed = shouldShow === testCase.expected;
+                
+                results += `
+                    <div style="margin: 10px 0; padding: 10px; border: 1px solid ${passed ? '#28a745' : '#dc3545'}; border-radius: 4px;">
+                        <strong>${testCase.name}:</strong> ${passed ? '✅ PASS' : '❌ FAIL'}
+                        <br>Expected: ${testCase.expected}, Got: ${shouldShow}
+                    </div>
+                `;
+            });
+
+            document.getElementById('logic-result').innerHTML = results;
+        }
+    </script>
+</body>
+</html> 
